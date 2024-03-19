@@ -1,5 +1,5 @@
 /*
-Resident Evil HD Remaster Autosplitter Version 5.0.1
+Resident Evil HD Remaster Autosplitter Version 5.0.0
 Supports room-room splits for every category, in addition to key-item and key-event splits.
 Split files may be obtained from: 
 by CursedToast 2/22/2016 (1.0 initial release) to 5/18/2018 (3.0 release)
@@ -43,7 +43,7 @@ state("bhd")
 startup
 {
 	/* Debug messages for DebugView (https://docs.microsoft.com/en-us/sysinternals/downloads/debugview) */
-	vars.DebugMessage = (Action<string>)((message) => { print("[Debug] " + message); });
+	//vars.DebugMessage = (Action<string>)((message) => { print("[ebug] " + message); });
 	
 	Assembly.Load(File.ReadAllBytes("Components/asl-help")).CreateInstance("Basic");
 	vars.Helper.Settings.CreateFromXml("Components/RE1make.Settings.xml");
