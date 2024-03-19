@@ -99,7 +99,7 @@
 		</Setting>
 	</Setting>
 	
-	<Setting Id="EventSplit" Label="Auto-split on certain events." State="false">
+	<Setting Id="EventSplit" Label="Event Splits" State="false">
 	    <Setting Id="shared" Label="Shared Events" State="false">
 			<Setting Id="11121" Label="Crimson Head Wakes Up (Crypt)" State="false"/>
 			<Setting Id="31707" Label="Cemetery Game Complete NESW Puzzle" State="false"/>
