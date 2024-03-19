@@ -127,16 +127,10 @@ split
 	int AreaID = current.area;
 	if (current.vidplaying > 0)
 	{
-		if (current.playing == 0x01B0 && !vars.Events.Contains("Ended"))
+		if (current.playing == 0x01B0 && !vars.completedSplitsInt.Contains(9999))
 		{
-			vars.Events.Add("Ended");
+			vars.completedSplitsInt.Add(9999);
 			return true;
-		}
-		int FMVplace = (int)(AreaID*100+RoomID);
-		if (settings.ContainsKey("fmv"+FMVplace) && !vars.Events.Contains("fmv"+FMVplace))
-		{
-			vars.Events.Add("fmv"+FMVplace);
-			return settings["fmv"+FMVplace];
 		}
 	}
 
