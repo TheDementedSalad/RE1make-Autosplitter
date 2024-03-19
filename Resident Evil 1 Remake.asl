@@ -148,8 +148,11 @@ split
 
 	//Event Splits
 	if(settings["EventSplit"]){
-		if(vars.Events.Contains(SceneID) && !vars.completedSplitsInt.Contains(SceneID))
-           {
+		if(SceneID == 30110 && old.camera == 7 && !vars.completedSplitsInt.Contains(SceneID)){
+			vars.completedSplitsInt.Add(SceneID);
+            return settings[SceneID.ToString()];
+		}
+		else if(vars.Events.Contains(SceneID) && !vars.completedSplitsInt.Contains(SceneID)){
             vars.completedSplitsInt.Add(SceneID);
             return settings[SceneID.ToString()];
         }
