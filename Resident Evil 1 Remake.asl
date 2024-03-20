@@ -94,7 +94,7 @@ start
 	{
 		for (int i = 1; i < 4; i++)
 		{
-			if (settings["oufit"+i])
+			if (settings["outfit"+i])
 			{
 				game.WriteValue<int>(game.ReadPointer((IntPtr)modules.First().BaseAddress+0x97C9C0) + 0x5114, i);
 				break;
