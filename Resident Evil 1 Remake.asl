@@ -86,12 +86,8 @@ update
 	{
 		current.Inventory[i] = new DeepPointer(0x97C9C0, 0x38 + (i * 0x8)).Deref<int>(game);
     }
-}
-
-start
-{
-	if (current.playing == 0x0550 && current.time < 0.05)
-	{
+	
+	if(current.vidplaying == 459475952){
 		for (int i = 1; i < 4; i++)
 		{
 			if (settings["outfit"+i])
@@ -100,6 +96,12 @@ start
 				break;
 			}
 		}
+	}
+}
+
+start
+{
+	if (current.area == 1 && current.room == 5 && current.camera == 0 && current.load == 0 && current.cutscene == 1){
 		return true;
 	}
 	return false;
@@ -107,7 +109,7 @@ start
 
 isLoading
 {
-	return current.load == 1 || current.cutscene == 2;
+	return current.load == 1 || current.cutscene == 2 || current.vidplaying != 0;
 }
 
 reset
