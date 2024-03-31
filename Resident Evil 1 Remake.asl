@@ -87,7 +87,7 @@ update
 		current.Inventory[i] = new DeepPointer(0x97C9C0, 0x38 + (i * 0x8)).Deref<int>(game);
     }
 	
-	if(current.vidplaying == 459475952){
+	if(current.playing == 0x0550 && current.time < 0.05){
 		for (int i = 1; i < 4; i++)
 		{
 			if (settings["outfit"+i])
