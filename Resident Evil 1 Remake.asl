@@ -1,6 +1,6 @@
 /*
-Resident Evil HD Remaster Autosplitter Version 5.0.0
-Supports room-room splits for every category, in addition to key-item and key-event splits.
+Resident Evil HD Remaster Autosplitter Version 5.1.0
+Supports room-room splits for every category, in addition to key-item and key-event splits + load remover.
 Split files may be obtained from: 
 by CursedToast 2/22/2016 (1.0 initial release) to 5/18/2018 (3.0 release)
 
@@ -25,7 +25,7 @@ Thank you to all the above people for helping me make this possible.
 -CursedToast/Nate
 */
 
-state("bhd")
+/*state("bhd", "old")
 {
 	float time:			0x97C9C0, 0xE474C;
 	int dslot1:			0x97C9C0, 0x5088;
@@ -39,6 +39,26 @@ state("bhd")
 	byte load:			0x9E4270, 0x4F0;
 	byte cutscene:		0x97C398, 0x1658;
 }
+*/ 
+
+state("bhd", "28 sep 2026")
+{
+	byte gameState:		0x8F2F28, 0x28;
+	byte camState:		0x8F2F28, 0x2C;
+	byte charState:		0x8F2F28, 0x2D;
+	byte fadeState:		0x8F2F28, 0x34;
+	float time:			0x8F2F28, 0xE474C;
+	int dslot1:			0x8F2F28, 0x5088;
+	int dslot2:			0x8F2F28, 0x508C;
+	int area:			0x8F2F28, 0xE4750;
+	int room:			0x8F2F28, 0xE4754;
+	int camera:			0x8F2F28, 0xE48B0;
+	int playing:		0x8FF330, 0x04;
+	
+	byte load:			0x959448, 0x4F0;
+	byte cutscene:		0x8F2788, 0x1658;
+	byte stateBit:		0x959380, 0x33D8C8;
+}
 
 startup
 {
@@ -48,6 +68,9 @@ startup
 	Assembly.Load(File.ReadAllBytes("Components/asl-help")).CreateInstance("Basic");
 	vars.Helper.Settings.CreateFromXml("Components/RE1make.Settings.xml");
 	
+	//This allows is to look through a bitmask in order to get split information
+	vars.bitCheck = new Func<byte, int, bool>((byte val, int b) => (val & (1 << b)) != 0);
+
 	vars.Items = new List<int>()
     {4, 6, 7, 13, 21, 22, 23, 24, 26, 28, 29, 
 	 30, 31, 32, 43, 45, 46, 47, 48, 49, 50, 
@@ -55,11 +78,11 @@ startup
 	 66, 67, 69, 70, 71, 72, 74, 76, 77, 78,
 	 80, 90, 91, 92, 93, 94, 95, 96, 97, 99, 
 	 100, 102, 103, 106, 107, 110, 111, 112, 
-	 123, 124, 125, 126, 127, 128, 129};
+	 122, 123, 124, 125, 126, 127, 128, 129};
 	 
 	vars.Events = new List<int>()
     {11121, 31707, 22205, 22214, 30208, 31508, 32406, 32107, 50608, 51510, 51707};
-	
+
 	
 }
 
@@ -81,7 +104,7 @@ update
 		vars.keys = new HashSet<string>();
 	}
 
-	//Iterate through the inventory slots to return their values
+	/*//Iterate through the inventory slots to return their values
 	for(int i = 0; i < 9; i++)
 	{
 		current.Inventory[i] = new DeepPointer(0x97C9C0, 0x38 + (i * 0x8)).Deref<int>(game);
@@ -93,6 +116,24 @@ update
 			if (settings["outfit"+i])
 			{
 				game.WriteValue<int>(game.ReadPointer((IntPtr)modules.First().BaseAddress+0x97C9C0) + 0x5114, i);
+				break;
+			}
+		}
+	}
+	Old update*/
+	
+	//Iterate through the inventory slots to return their values
+	for(int i = 0; i < 9; i++)
+	{
+		current.Inventory[i] = new DeepPointer(0x8F2F28, 0x38 + (i * 0x8)).Deref<int>(game);
+    }
+	
+	if(current.playing == 0x0550 && current.time < 0.05){
+		for (int i = 1; i < 4; i++)
+		{
+			if (settings["outfit"+i])
+			{
+				game.WriteValue<int>(game.ReadPointer((IntPtr)modules.First().BaseAddress+0x8F2F28) + 0x5114, i);
 				break;
 			}
 		}
@@ -109,7 +150,9 @@ start
 
 isLoading
 {
-	return current.load == 1 || current.cutscene == 2 || current.vidplaying != 0;
+	return current.load == 1 || vars.bitCheck(current.stateBit, 2) || current.cutscene == 2 && !vars.bitCheck(current.stateBit, 1) || 
+			vars.bitCheck(current.charState, 1) || vars.bitCheck(current.camState, 7) || vars.bitCheck(current.charState, 7) && !vars.bitCheck(current.charState, 4) || 
+				vars.bitCheck(current.fadeState, 5) || vars.bitCheck(current.fadeState, 6);
 }
 
 reset
@@ -128,14 +171,6 @@ split
 
 	/* VIDEOS */
 	int AreaID = current.area;
-	if (current.vidplaying > 0)
-	{
-		if (current.playing == 0x01B0 && !vars.compSplitsTxt.Contains("Ending"))
-		{
-			vars.compSplitsTxt.Add("Ending");
-			return true;
-		}
-	}
 
 	/*	For a full documentary look at:
 		https://docs.google.com/spreadsheets/d/1tCN-INVKPmbCZTmgJvYW3zQOAaArVHfor1OXZDsn6EU */
@@ -187,9 +222,16 @@ split
 			//Other Item Splits
 			else if(vars.Items.Contains(currentInventory[i]) && !vars.compSplitsInt.Contains(currentInventory[i])){
             	vars.compSplitsInt.Add(currentInventory[i]);
+				print(currentInventory[i].ToString());
             	return settings[currentInventory[i].ToString()];
         	}
     	}
 	}
+	
+	if (vars.bitCheck(current.gameState, 3) && !vars.compSplitsTxt.Contains("Ending")){
+		vars.compSplitsTxt.Add("Ending");
+		return true;
+	}
+	
 	return false;
 }
